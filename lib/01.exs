@@ -1,6 +1,6 @@
 {list1, list2} =
   File.read!("data/01.txt")
-  |> String.split("\n")
+  |> String.split(["\n", "\r\n"])
   |> Enum.map(fn line ->
     line
     |> String.split("   ")
