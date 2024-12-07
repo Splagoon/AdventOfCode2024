@@ -22,9 +22,6 @@ has_result = fn {result, operands}, expansion ->
     [] ->
       [operand]
 
-    [^result] ->
-      [result]
-
     results ->
       results
       |> Enum.flat_map(fn result ->
