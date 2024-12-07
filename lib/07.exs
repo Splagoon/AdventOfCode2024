@@ -9,30 +9,35 @@ equations =
     end)
   end)
 
+concat = fn a, b -> a * :math.pow(10, 1 + floor(:math.log10(b))) + b end
+
 part1_expansion = fn a, b -> [a + b, a * b] end
 
 part2_expansion = fn a, b ->
-  [String.to_integer(to_string(a) <> to_string(b)) | part1_expansion.(a, b)]
+  [concat.(a, b) | part1_expansion.(a, b)]
 end
 
-get_all_results = fn operands, expansion ->
+has_result = fn {result, operands}, expansion ->
   for operand <- operands, reduce: [] do
     [] ->
       [operand]
+
+    [^result] ->
+      [result]
 
     results ->
       results
       |> Enum.flat_map(fn result ->
         expansion.(result, operand)
       end)
+      |> Enum.filter(&(&1 <= result))
   end
+  |> Enum.any?(&(&1 == result))
 end
 
 total_valid = fn expansion ->
   equations
-  |> Enum.filter(fn {result, operands} ->
-    result in get_all_results.(operands, expansion)
-  end)
+  |> Enum.filter(&has_result.(&1, expansion))
   |> Enum.map(&elem(&1, 0))
   |> Enum.sum()
 end
