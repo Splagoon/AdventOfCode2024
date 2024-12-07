@@ -1,4 +1,4 @@
-defmodule Day04 do
+defmodule Day06 do
   def get_input() do
     File.read!("data/06.txt")
     |> String.split(["\n", "\r\n"])
@@ -58,9 +58,11 @@ defmodule Day04 do
 
   def walk(guard, map), do: step(guard, map, MapSet.new([guard]))
 
-  def generate_obstacles({guard_pos, _}, map) do
-    for {pos, what} <- Map.to_list(map), reduce: [] do
+  def generate_obstacles({guard_pos, _}, map, obstacle_positions) do
+    for pos <- obstacle_positions, reduce: [] do
       maps ->
+        what = Map.get(map, pos)
+
         cond do
           pos == guard_pos -> maps
           what == :wall -> maps
@@ -70,18 +72,22 @@ defmodule Day04 do
   end
 end
 
-{guard, map} = Day04.get_input()
+{guard, map} = Day06.get_input()
 
-part1 =
-  Day04.walk(guard, map)
+guard_visited =
+  Day06.walk(guard, map)
   |> then(&elem(&1, 1))
   |> MapSet.to_list()
-  |> Enum.uniq_by(fn {pos, _} -> pos end)
+  |> Enum.map(&elem(&1, 0))
+  |> Enum.uniq()
+
+part1 =
+  guard_visited
   |> Enum.count()
 
 part2 =
-  Day04.generate_obstacles(guard, map)
-  |> Enum.map(fn m -> Day04.walk(guard, m) end)
+  Day06.generate_obstacles(guard, map, guard_visited)
+  |> Enum.map(fn m -> Day06.walk(guard, m) end)
   |> Enum.count(&elem(&1, 0))
 
 IO.puts("Part 1: #{part1}")
